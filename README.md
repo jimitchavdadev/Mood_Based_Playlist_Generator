@@ -74,7 +74,8 @@ An AI-powered music playlist generator that curates playlists based on your mood
    GROQ_API_KEY=your_groq_api_key_here
    SONGS_DIRECTORY=path_to_your_songs_folder
    ```
-4. Organize the `songs` directory by mood-based subfolders.
+4. Organize the `songs` directory by mood-based subfolders. You can download more songs from [this link](https://drive.google.com/file/d/1yPLCZK_wYt1mhSmVEHLD-wBuL5nf97wo/view?usp=sharing).
+
 5. Start the backend server:
    ```sh
    npm start
