@@ -17,8 +17,6 @@ An AI-powered music playlist generator that curates playlists based on your mood
 ```
 .
 ├── backend
-│   ├── controllers
-│   │   └── playlistController.js
 │   ├── package.json
 │   ├── package-lock.json
 │   ├── routes
