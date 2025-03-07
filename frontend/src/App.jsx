@@ -1,37 +1,52 @@
 import React, { useState } from 'react';
 import { ThemeToggle } from './components/ThemeToggle';
-import { MusicPlayer } from './components/MusicPlayer';
 import { WaveformBackground } from './components/WaveformBackground';
-import { Music2, Sparkles } from 'lucide-react';
+import { Music2 } from 'lucide-react';
 import { GeneratePlaylistSection } from './components/GeneratePlaylistSection';
 import { GeneratedPlaylistSection } from './components/GeneratedPlaylistSection';
 import './styles/globals.css';
+import axios from 'axios';
+
+// Import the enhanced MusicPlayer component
+import { MusicPlayer } from './components/MusicPlayer';
 
 function App() {
   const [selectedMood, setSelectedMood] = useState('Happy');
-  const [moodIntensity, setMoodIntensity] = useState(50);
-  const [energy, setEnergy] = useState(70);
-  const [tempo, setTempo] = useState(60);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playlist, setPlaylist] = useState([]); // Ensure only ONE state for playlist
+  const [playlist, setPlaylist] = useState([]);
 
-  const handleGeneratePlaylist = async () => {
+  const handleGeneratePlaylist = async (moodData) => {
     setIsGenerating(true);
+    
     try {
-        const response = await fetch(`http://localhost:5000/api/generate-playlist?mood=${selectedMood}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+      let response;
+      
+      // Check if we're using a custom playlist or a single mood
+      if (typeof moodData === 'object' && Object.keys(moodData).length > 1) {
+        // Make sure all values are numeric before sending
+        const numericMoodData = {};
+        for (const [mood, value] of Object.entries(moodData)) {
+          numericMoodData[mood] = Number(value);
         }
-        const data = await response.json();
-        console.log("Fetched Playlist:", data); // Debugging log
-        setPlaylist(data); // Ensure playlist state is updated
+        
+        // Custom playlist with mood percentages
+        response = await axios.post('http://localhost:5000/api/generate-custom-playlist', numericMoodData);
+      } else {
+        // Single mood (traditional approach)
+        const mood = typeof moodData === 'object' ? Object.keys(moodData)[0] : selectedMood;
+        response = await axios.get(`http://localhost:5000/api/generate-playlist?mood=${mood}`);
+      }
+      
+      console.log("Fetched Playlist:", response.data);
+      setPlaylist(response.data);
     } catch (error) {
-        console.error("Error fetching playlist:", error);
+      console.error('Error generating playlist:', error);
+      alert('Failed to generate playlist. Please try again.');
     } finally {
-        setIsGenerating(false);
+      setIsGenerating(false);
     }
-};
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-pink-800 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-white relative overflow-hidden transition-colors duration-300">
@@ -48,10 +63,6 @@ function App() {
                 </h1>
               </div>
               <div className="flex items-center space-x-4">
-                <button className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 dark:from-purple-600 dark:to-pink-600 dark:hover:from-purple-700 dark:hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl">
-                  <Sparkles className="h-5 w-5" />
-                  <span>Connect Spotify</span>
-                </button>
                 <ThemeToggle />
               </div>
             </div>
@@ -59,21 +70,24 @@ function App() {
         </header>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <GeneratePlaylistSection
-            selectedMood={selectedMood}
-            setSelectedMood={setSelectedMood}
-            isGenerating={isGenerating}
-            handleGeneratePlaylist={handleGeneratePlaylist}
-        />
-        <GeneratedPlaylistSection playlist={playlist} />
-    </div>
-</main>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <GeneratePlaylistSection
+              selectedMood={selectedMood}
+              setSelectedMood={setSelectedMood}
+              isGenerating={isGenerating}
+              handleGeneratePlaylist={handleGeneratePlaylist}
+            />
+            <GeneratedPlaylistSection playlist={playlist} />
+          </div>
         </main>
 
         <div className="pb-32">
-          <MusicPlayer onPlayingChange={setIsPlaying} />
+          {/* Pass the required props to MusicPlayer */}
+          <MusicPlayer 
+            onPlayingChange={setIsPlaying} 
+            playlist={playlist} 
+            setPlaylist={setPlaylist}
+          />
         </div>
       </div>
     </div>
