@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-const SONGS_DIR = '/home/totoro/Roger/Projects/Mood-Based-Playlist-Generator/songs/';
+const SONGS_DIR = 'songs/';   // Add your own songs to this directory, I have added some for your testing 
 const TOTAL_SONGS = 20; // Total number of songs in a custom playlist
 
 // Helper function to get songs for a specific mood
@@ -393,6 +393,9 @@ function formatDuration(seconds) {
 
 app.use('/songs', express.static(SONGS_DIR));
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+app.listen(5000, '0.0.0.0', () => {
+    console.log('Server running on http://0.0.0.0:5000');
+    console.log('Access from other devices at http://192.168.1.4:5000');
+  });
+  
+  
